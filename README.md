@@ -80,6 +80,65 @@ cd ../../build
 ./examples/fortran/simple_example
 ```
 
+## Weather Model Integration
+
+Fortran-Torch is specifically designed for integrating ML into operational weather and climate models. We provide comprehensive integration guides for:
+
+### Supported Models
+
+- **[WRF (Weather Research and Forecasting)](docs/INTEGRATION_WRF.md)** - Regional weather model with modular physics
+- **[MPAS (Model for Prediction Across Scales)](docs/INTEGRATION_MPAS.md)** - Variable-resolution global model
+- **[FV3GFS (Finite-Volume Cubed-Sphere)](docs/INTEGRATION_FV3.md)** - NOAA's operational global forecast system
+
+### Quick Links
+
+- **[General Weather Model Integration Guide](docs/WEATHER_MODEL_INTEGRATION.md)** - Patterns, best practices, and common integration approaches
+- **[WRF Integration](docs/INTEGRATION_WRF.md)** - Detailed WRF integration with physics schemes, build configuration, and examples
+- **[MPAS Integration](docs/INTEGRATION_MPAS.md)** - Unstructured mesh handling, variable resolution, and MPAS-specific patterns
+- **[FV3 Integration](docs/INTEGRATION_FV3.md)** - CCPP-compliant schemes, cubed-sphere considerations, operational deployment
+
+### Integration Examples
+
+**ML-based Convection Scheme for WRF:**
+```fortran
+use module_cu_ml
+use ftorch
+
+! Initialize ML model
+call cu_ml_init('convection_model.pt')
+
+! In physics loop
+call cu_ml_driver(t3d, qv3d, p3d, rthcuten, rqvcuten, ...)
+```
+
+**Scale-Aware Parameterization for MPAS:**
+```fortran
+! Include mesh resolution for variable-resolution grids
+do iCell = 1, nCells
+    resolution = get_cell_resolution(iCell)
+    call ml_convection(theta(:,iCell), resolution, tend(:,iCell))
+end do
+```
+
+**CCPP-Compliant Scheme for FV3:**
+```fortran
+! CCPP metadata-driven integration
+subroutine ml_convection_run(t, q, prsl, dt_t, dq_v, errmsg, errflg)
+    ! Standard CCPP interface
+    ! Operational-ready deployment
+end subroutine
+```
+
+### Use Cases
+
+1. **Physics Parameterizations** - Replace or augment convection, PBL, microphysics
+2. **Bias Correction** - Correct systematic model errors
+3. **Subgrid Processes** - Scale-aware turbulence, clouds
+4. **Data Assimilation** - ML observation operators
+5. **Post-Processing** - Downscaling, ensemble calibration
+
+See the [Weather Model Integration Guide](docs/WEATHER_MODEL_INTEGRATION.md) for comprehensive documentation.
+
 ## Usage
 
 ### Training and Exporting Models (Python)
