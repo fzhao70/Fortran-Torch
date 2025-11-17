@@ -15,7 +15,8 @@ program simple_example
     ! Variables
     type(torch_model) :: model
     type(torch_tensor) :: input_tensor, output_tensor
-    real(real32), dimension(10) :: input_data, output_data
+    real(real32), dimension(10) :: input_data
+    real(real32), dimension(5) :: output_data
     integer :: i
     logical :: cuda_available
 
@@ -82,7 +83,6 @@ program simple_example
 
     ! Step 5: Extract output data
     print *, 'Step 5: Extracting output data...'
-    allocate(output_data(5))
     call torch_tensor_to_array(output_tensor, output_data)
 
     print *, 'Output data:'
