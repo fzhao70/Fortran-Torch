@@ -206,61 +206,630 @@ end program my_program
 
 ## API Reference
 
-### Model Operations
+The Fortran-Torch API provides a type-safe, easy-to-use interface for PyTorch inference in Fortran. All functions use ISO_C_BINDING for seamless interoperability.
+
+### Core Types
+
+#### torch_model
+
+Opaque type representing a loaded PyTorch model.
 
 ```fortran
-! Load a TorchScript model
+type :: torch_model
+    type(c_ptr) :: ptr = c_null_ptr
+end type torch_model
+```
+
+**Usage:**
+- Created by `torch_load_model()`
+- Used for inference with `torch_forward()`
+- Must be freed with `torch_free_model()`
+- Check validity: `c_associated(model%ptr)`
+
+#### torch_tensor
+
+Opaque type representing a PyTorch tensor.
+
+```fortran
+type :: torch_tensor
+    type(c_ptr) :: ptr = c_null_ptr
+end type torch_tensor
+```
+
+**Usage:**
+- Created by `torch_tensor_from_array()` or `torch_forward()`
+- Converted to Fortran arrays with `torch_tensor_to_array()`
+- Must be freed with `torch_free_tensor()`
+- Check validity: `c_associated(tensor%ptr)`
+
+### Model Operations
+
+#### torch_load_model
+
+Load a TorchScript model from a file.
+
+```fortran
 type(torch_model) function torch_load_model(model_path, device)
     character(len=*), intent(in) :: model_path
     integer(torch_device), intent(in), optional :: device
+end function torch_load_model
+```
 
-! Free a model
-subroutine torch_free_model(model)
-    type(torch_model), intent(inout) :: model
+**Parameters:**
+- `model_path`: Path to the `.pt` TorchScript model file
+- `device` (optional): Device to load model on (`TORCH_DEVICE_CPU` or `TORCH_DEVICE_CUDA`). Defaults to CPU.
 
-! Run inference
+**Returns:**
+- `torch_model`: Model handle. Check `c_associated(model%ptr)` for success.
+
+**Example:**
+```fortran
+type(torch_model) :: model
+
+! Load on CPU
+model = torch_load_model('my_model.pt')
+
+! Load on GPU
+model = torch_load_model('my_model.pt', TORCH_DEVICE_CUDA)
+
+! Check if loaded successfully
+if (.not. c_associated(model%ptr)) then
+    print *, "Error loading model"
+    stop 1
+end if
+```
+
+**Notes:**
+- Model file must exist and be a valid TorchScript model
+- For CUDA models, ensure CUDA is available (`torch_cuda_available()`)
+- Model remains in memory until `torch_free_model()` is called
+
+#### torch_forward
+
+Run inference on a loaded model.
+
+```fortran
 type(torch_tensor) function torch_forward(model, input)
     type(torch_model), intent(in) :: model
     type(torch_tensor), intent(in) :: input
+end function torch_forward
 ```
+
+**Parameters:**
+- `model`: Loaded model from `torch_load_model()`
+- `input`: Input tensor from `torch_tensor_from_array()`
+
+**Returns:**
+- `torch_tensor`: Output tensor. Check `c_associated(output%ptr)` for success.
+
+**Example:**
+```fortran
+type(torch_model) :: model
+type(torch_tensor) :: input_tensor, output_tensor
+real(real32) :: input_data(10), output_data(5)
+
+model = torch_load_model('my_model.pt')
+input_tensor = torch_tensor_from_array(input_data)
+
+! Run inference
+output_tensor = torch_forward(model, input_tensor)
+
+! Extract results
+call torch_tensor_to_array(output_tensor, output_data)
+
+! Cleanup
+call torch_free_tensor(output_tensor)
+```
+
+**Notes:**
+- Input tensor shape must match model's expected input
+- Output tensor must be freed after use
+- Thread-safe if using separate model instances per thread
+
+#### torch_free_model
+
+Free a loaded model and release resources.
+
+```fortran
+subroutine torch_free_model(model)
+    type(torch_model), intent(inout) :: model
+end subroutine torch_free_model
+```
+
+**Parameters:**
+- `model`: Model to free (pointer set to `c_null_ptr` after freeing)
+
+**Example:**
+```fortran
+type(torch_model) :: model
+
+model = torch_load_model('my_model.pt')
+! ... use model ...
+call torch_free_model(model)
+```
+
+**Notes:**
+- Safe to call multiple times (checks for null pointer)
+- Should be called before program termination
+- Model cannot be used after freeing
 
 ### Tensor Operations
 
-```fortran
-! Create tensor from Fortran array (1D, 2D, or 3D)
-type(torch_tensor) function torch_tensor_from_array(array, device)
-    real(real32/real64), intent(in) :: array(:) or array(:,:) or array(:,:,:)
-    integer(torch_device), intent(in), optional :: device
+#### torch_tensor_from_array
 
-! Copy tensor data to Fortran array
+Create a PyTorch tensor from a Fortran array. Generic interface supporting multiple ranks and types.
+
+```fortran
+! Generic interface
+interface torch_tensor_from_array
+    module procedure torch_tensor_from_array_real32_1d
+    module procedure torch_tensor_from_array_real32_2d
+    module procedure torch_tensor_from_array_real32_3d
+    module procedure torch_tensor_from_array_real64_1d
+    module procedure torch_tensor_from_array_real64_2d
+    module procedure torch_tensor_from_array_real64_3d
+end interface torch_tensor_from_array
+```
+
+**Supported Signatures:**
+
+**1D Arrays:**
+```fortran
+type(torch_tensor) function torch_tensor_from_array(array, device)
+    real(real32), intent(in) :: array(:)
+    integer(torch_device), intent(in), optional :: device
+end function
+
+type(torch_tensor) function torch_tensor_from_array(array, device)
+    real(real64), intent(in) :: array(:)
+    integer(torch_device), intent(in), optional :: device
+end function
+```
+
+**2D Arrays:**
+```fortran
+type(torch_tensor) function torch_tensor_from_array(array, device)
+    real(real32), intent(in) :: array(:,:)
+    integer(torch_device), intent(in), optional :: device
+end function
+
+type(torch_tensor) function torch_tensor_from_array(array, device)
+    real(real64), intent(in) :: array(:,:)
+    integer(torch_device), intent(in), optional :: device
+end function
+```
+
+**3D Arrays:**
+```fortran
+type(torch_tensor) function torch_tensor_from_array(array, device)
+    real(real32), intent(in) :: array(:,:,:)
+    integer(torch_device), intent(in), optional :: device
+end function
+
+type(torch_tensor) function torch_tensor_from_array(array, device)
+    real(real64), intent(in) :: array(:,:,:)
+    integer(torch_device), intent(in), optional :: device
+end function
+```
+
+**Parameters:**
+- `array`: Fortran array (1D, 2D, or 3D; float32 or float64)
+- `device` (optional): Device to create tensor on. Defaults to CPU.
+
+**Returns:**
+- `torch_tensor`: Tensor containing copy of array data
+
+**Examples:**
+
+```fortran
+! 1D array (float32)
+real(real32) :: vec(100)
+type(torch_tensor) :: tensor1d
+vec = 1.0
+tensor1d = torch_tensor_from_array(vec)
+
+! 2D array (float64)
+real(real64) :: mat(50, 20)
+type(torch_tensor) :: tensor2d
+mat = 2.0d0
+tensor2d = torch_tensor_from_array(mat)
+
+! 3D array on GPU
+real(real32) :: cube(10, 10, 5)
+type(torch_tensor) :: tensor3d_gpu
+cube = 3.0
+tensor3d_gpu = torch_tensor_from_array(cube, TORCH_DEVICE_CUDA)
+
+! Cleanup
+call torch_free_tensor(tensor1d)
+call torch_free_tensor(tensor2d)
+call torch_free_tensor(tensor3d_gpu)
+```
+
+**Notes:**
+- Data is copied from Fortran to PyTorch memory
+- Fortran column-major order is preserved in tensor
+- Allocatable/pointer arrays are supported (must be allocated)
+- Created tensors must be freed with `torch_free_tensor()`
+
+#### torch_tensor_to_array
+
+Copy data from a PyTorch tensor to a Fortran array. Generic interface for multiple ranks and types.
+
+```fortran
+! Generic interface
+interface torch_tensor_to_array
+    module procedure torch_tensor_to_array_real32_1d
+    module procedure torch_tensor_to_array_real32_2d
+    module procedure torch_tensor_to_array_real32_3d
+    module procedure torch_tensor_to_array_real64_1d
+    module procedure torch_tensor_to_array_real64_2d
+    module procedure torch_tensor_to_array_real64_3d
+end interface torch_tensor_to_array
+```
+
+**Supported Signatures:**
+
+**1D Arrays:**
+```fortran
 subroutine torch_tensor_to_array(tensor, array)
     type(torch_tensor), intent(in) :: tensor
-    real(real32/real64), intent(out) :: array(:) or array(:,:) or array(:,:,:)
+    real(real32), intent(out) :: array(:)
+end subroutine
 
-! Free a tensor
+subroutine torch_tensor_to_array(tensor, array)
+    type(torch_tensor), intent(in) :: tensor
+    real(real64), intent(out) :: array(:)
+end subroutine
+```
+
+**2D Arrays:**
+```fortran
+subroutine torch_tensor_to_array(tensor, array)
+    type(torch_tensor), intent(in) :: tensor
+    real(real32), intent(out) :: array(:,:)
+end subroutine
+
+subroutine torch_tensor_to_array(tensor, array)
+    type(torch_tensor), intent(in) :: tensor
+    real(real64), intent(out) :: array(:,:)
+end subroutine
+```
+
+**3D Arrays:**
+```fortran
+subroutine torch_tensor_to_array(tensor, array)
+    type(torch_tensor), intent(in) :: tensor
+    real(real32), intent(out) :: array(:,:,:)
+end subroutine
+
+subroutine torch_tensor_to_array(tensor, array)
+    type(torch_tensor), intent(in) :: tensor
+    real(real64), intent(out) :: array(:,:,:)
+end subroutine
+```
+
+**Parameters:**
+- `tensor`: Source tensor from `torch_forward()` or `torch_tensor_from_array()`
+- `array`: Destination Fortran array (must be pre-allocated with correct shape)
+
+**Examples:**
+
+```fortran
+type(torch_tensor) :: output_tensor
+real(real32) :: output_1d(10)
+real(real64) :: output_2d(5, 20)
+real(real32) :: output_3d(8, 8, 16)
+
+! Assuming output_tensor is from model inference
+
+! Extract to 1D array
+call torch_tensor_to_array(output_tensor, output_1d)
+
+! Extract to 2D array
+call torch_tensor_to_array(output_tensor, output_2d)
+
+! Extract to 3D array
+call torch_tensor_to_array(output_tensor, output_3d)
+```
+
+**Notes:**
+- Array must be pre-allocated with correct dimensions
+- Dimensions must exactly match tensor shape
+- Data is copied from PyTorch to Fortran memory
+- Type conversion (float32 ↔ float64) is handled automatically
+- Tensor remains valid after extraction (still needs to be freed)
+
+#### torch_free_tensor
+
+Free a tensor and release resources.
+
+```fortran
 subroutine torch_free_tensor(tensor)
     type(torch_tensor), intent(inout) :: tensor
+end subroutine torch_free_tensor
 ```
+
+**Parameters:**
+- `tensor`: Tensor to free (pointer set to `c_null_ptr` after freeing)
+
+**Example:**
+```fortran
+type(torch_tensor) :: input_tensor, output_tensor
+
+input_tensor = torch_tensor_from_array(input_data)
+output_tensor = torch_forward(model, input_tensor)
+
+! Use tensors...
+
+! Cleanup
+call torch_free_tensor(input_tensor)
+call torch_free_tensor(output_tensor)
+```
+
+**Notes:**
+- Safe to call multiple times (checks for null pointer)
+- Should be called for all created tensors
+- Tensor cannot be used after freeing
 
 ### Utility Functions
 
+#### torch_cuda_available
+
+Check if CUDA (GPU) support is available.
+
 ```fortran
-! Check if CUDA is available
 logical function torch_cuda_available()
+end function torch_cuda_available
 ```
 
-### Constants
+**Returns:**
+- `.true.` if CUDA is available
+- `.false.` if CUDA is not available (CPU-only build or no GPU)
+
+**Example:**
+```fortran
+logical :: has_cuda
+integer(torch_device) :: device
+
+has_cuda = torch_cuda_available()
+
+if (has_cuda) then
+    print *, "CUDA is available, using GPU"
+    device = TORCH_DEVICE_CUDA
+else
+    print *, "CUDA not available, using CPU"
+    device = TORCH_DEVICE_CPU
+end if
+
+model = torch_load_model('model.pt', device)
+```
+
+**Notes:**
+- Returns false if LibTorch is built without CUDA
+- Returns false if no CUDA-capable GPU is detected
+- Check before attempting to use `TORCH_DEVICE_CUDA`
+
+#### torch_get_last_error
+
+Get the last error message from the C++ layer.
 
 ```fortran
-! Data types
-TORCH_FLOAT32  ! 32-bit floating point
-TORCH_FLOAT64  ! 64-bit floating point
-TORCH_INT32    ! 32-bit integer
-TORCH_INT64    ! 64-bit integer
+function torch_get_last_error() result(error_msg)
+    character(len=512) :: error_msg
+end function torch_get_last_error
+```
 
-! Devices
-TORCH_DEVICE_CPU   ! CPU device
-TORCH_DEVICE_CUDA  ! CUDA GPU device
+**Returns:**
+- Character string with last error message (empty if no error)
+
+**Example:**
+```fortran
+type(torch_model) :: model
+
+model = torch_load_model('nonexistent.pt')
+
+if (.not. c_associated(model%ptr)) then
+    print *, "Error: ", trim(torch_get_last_error())
+    stop 1
+end if
+```
+
+**Notes:**
+- Error messages are thread-local
+- Error is cleared after retrieval
+- Useful for debugging model loading and inference issues
+
+### Constants and Enumerations
+
+#### Data Types
+
+```fortran
+! Tensor data types (torch_dtype)
+integer(c_int), parameter :: TORCH_FLOAT32 = 0  ! 32-bit floating point
+integer(c_int), parameter :: TORCH_FLOAT64 = 1  ! 64-bit floating point
+integer(c_int), parameter :: TORCH_INT32   = 2  ! 32-bit integer
+integer(c_int), parameter :: TORCH_INT64   = 3  ! 64-bit integer
+```
+
+**Usage:**
+- Automatically determined from Fortran array type
+- Generally not used directly (handled by generic interfaces)
+
+**Type Mapping:**
+- `real(real32)` → `TORCH_FLOAT32` → PyTorch `float32`
+- `real(real64)` → `TORCH_FLOAT64` → PyTorch `float64`
+
+#### Devices
+
+```fortran
+! Device types (torch_device)
+integer(c_int), parameter :: TORCH_DEVICE_CPU  = 0  ! CPU device
+integer(c_int), parameter :: TORCH_DEVICE_CUDA = 1  ! CUDA GPU device
+```
+
+**Usage:**
+```fortran
+! Load model on CPU
+model = torch_load_model('model.pt', TORCH_DEVICE_CPU)
+
+! Load model on GPU (if available)
+if (torch_cuda_available()) then
+    model = torch_load_model('model.pt', TORCH_DEVICE_CUDA)
+end if
+
+! Create tensor on GPU
+tensor = torch_tensor_from_array(data, TORCH_DEVICE_CUDA)
+```
+
+**Notes:**
+- Default device is CPU if not specified
+- Model and tensors should be on the same device
+- CUDA device requires CUDA-enabled LibTorch build
+
+### Complete Usage Example
+
+Here's a comprehensive example demonstrating the full API:
+
+```fortran
+program complete_api_example
+    use ftorch
+    use iso_fortran_env, only: real32, real64
+    implicit none
+
+    ! Variables
+    type(torch_model) :: model
+    type(torch_tensor) :: input_tensor, output_tensor
+    real(real32), allocatable :: input_data(:,:)
+    real(real32), allocatable :: output_data(:)
+    integer :: i, j
+    logical :: cuda_available
+    integer(torch_device) :: device
+    character(len=512) :: error_msg
+
+    ! Check CUDA availability
+    cuda_available = torch_cuda_available()
+    if (cuda_available) then
+        print *, "CUDA available - using GPU"
+        device = TORCH_DEVICE_CUDA
+    else
+        print *, "CUDA not available - using CPU"
+        device = TORCH_DEVICE_CPU
+    end if
+
+    ! Allocate input data (batch of 32, features of 128)
+    allocate(input_data(32, 128))
+    allocate(output_data(10))
+
+    ! Initialize input
+    do j = 1, 128
+        do i = 1, 32
+            input_data(i, j) = real(i + j, real32)
+        end do
+    end do
+
+    ! Load model
+    model = torch_load_model('classifier.pt', device)
+    if (.not. c_associated(model%ptr)) then
+        error_msg = torch_get_last_error()
+        print *, "Failed to load model: ", trim(error_msg)
+        stop 1
+    end if
+    print *, "Model loaded successfully"
+
+    ! Create input tensor
+    input_tensor = torch_tensor_from_array(input_data, device)
+    if (.not. c_associated(input_tensor%ptr)) then
+        print *, "Failed to create input tensor"
+        call torch_free_model(model)
+        stop 1
+    end if
+
+    ! Run inference
+    output_tensor = torch_forward(model, input_tensor)
+    if (.not. c_associated(output_tensor%ptr)) then
+        error_msg = torch_get_last_error()
+        print *, "Inference failed: ", trim(error_msg)
+        call torch_free_tensor(input_tensor)
+        call torch_free_model(model)
+        stop 1
+    end if
+    print *, "Inference completed"
+
+    ! Extract results
+    call torch_tensor_to_array(output_tensor, output_data)
+
+    print *, "Output:", output_data
+
+    ! Cleanup - IMPORTANT!
+    call torch_free_tensor(input_tensor)
+    call torch_free_tensor(output_tensor)
+    call torch_free_model(model)
+
+    deallocate(input_data)
+    deallocate(output_data)
+
+    print *, "Cleanup completed"
+
+end program complete_api_example
+```
+
+### Error Handling Best Practices
+
+Always check return values and handle errors:
+
+```fortran
+! 1. Check model loading
+model = torch_load_model('model.pt')
+if (.not. c_associated(model%ptr)) then
+    print *, "ERROR: ", trim(torch_get_last_error())
+    stop 1
+end if
+
+! 2. Check tensor creation
+tensor = torch_tensor_from_array(data)
+if (.not. c_associated(tensor%ptr)) then
+    print *, "ERROR: Failed to create tensor"
+    call torch_free_model(model)
+    stop 1
+end if
+
+! 3. Check inference
+output = torch_forward(model, input)
+if (.not. c_associated(output%ptr)) then
+    print *, "ERROR: Inference failed"
+    call torch_free_tensor(input)
+    call torch_free_model(model)
+    stop 1
+end if
+
+! 4. Always cleanup
+call torch_free_tensor(input)
+call torch_free_tensor(output)
+call torch_free_model(model)
+```
+
+### Thread Safety
+
+For OpenMP parallel regions, use thread-private model instances:
+
+```fortran
+!$OMP PARALLEL PRIVATE(model, input_tensor, output_tensor)
+    ! Each thread loads its own model
+    model = torch_load_model('model.pt')
+
+    !$OMP DO
+    do i = 1, n_samples
+        input_tensor = torch_tensor_from_array(data(:,i))
+        output_tensor = torch_forward(model, input_tensor)
+        call torch_tensor_to_array(output_tensor, results(:,i))
+        call torch_free_tensor(input_tensor)
+        call torch_free_tensor(output_tensor)
+    end do
+    !$OMP END DO
+
+    call torch_free_model(model)
+!$OMP END PARALLEL
 ```
 
 ## Examples
@@ -429,29 +998,11 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Fortran community for ISO_C_BINDING standardization
 - Scientific computing community for testing and feedback
 
-## Related Projects
-
-- [FTorch](https://github.com/Cambridge-ICCS/FTorch) - Similar project from Cambridge ICCS
-- [pytorch-fortran](https://github.com/alexeedm/pytorch-fortran) - Alternative PyTorch-Fortran binding
-- [TensorFlow-Fortran](https://github.com/scientific-computing/tensorflow-fortran) - TensorFlow bindings for Fortran
-
 ## Support
 
 - **Documentation**: See `docs/` directory
 - **Issues**: GitHub issue tracker
 - **Discussions**: GitHub discussions
-
-## Roadmap
-
-- [ ] Support for multiple outputs
-- [ ] Support for multiple model instances
-- [ ] Automatic batching utilities
-- [ ] MPI-aware distributed inference
-- [ ] Model caching and optimization
-- [ ] Extended dtype support
-- [ ] Comprehensive test suite
-- [ ] Performance benchmarks
-- [ ] Tutorial notebooks
 
 ---
 
