@@ -39,3 +39,45 @@
 
 # debug information files
 *.dwo
+
+# CMake
+build/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+*.cmake
+!CMakeLists.txt
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+.Python
+venv/
+env/
+
+# PyTorch models
+*.pt
+*.pth
+*.onnx
+
+# LibTorch
+libtorch/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Generated examples
+simple_example
+weather_model_example
+
+# Installation
+install_manifest.txt
