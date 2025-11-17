@@ -58,6 +58,13 @@ if(BUILD_EXAMPLES)
     add_subdirectory(examples/fortran)
 endif()
 
+# Tests
+option(BUILD_TESTS "Build tests" ON)
+if(BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+endif()
+
 # Print configuration summary
 message(STATUS "")
 message(STATUS "FortranTorch Configuration Summary")
@@ -69,4 +76,5 @@ message(STATUS "  C++ compiler:      ${CMAKE_CXX_COMPILER}")
 message(STATUS "  PyTorch found:     ${Torch_DIR}")
 message(STATUS "  CUDA available:    ${CUDA_AVAILABLE}")
 message(STATUS "  Build examples:    ${BUILD_EXAMPLES}")
+message(STATUS "  Build tests:       ${BUILD_TESTS}")
 message(STATUS "")
