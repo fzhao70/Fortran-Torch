@@ -48,7 +48,7 @@ unzip libtorch-cxx11-abi-shared-with-deps-latest.zip
 2. **Clone and Build**
 
 ```bash
-git clone https://github.com/yourusername/Fortran-Torch.git
+git clone https://github.com/fzhao70/Fortran-Torch.git
 cd Fortran-Torch
 mkdir build && cd build
 
@@ -413,9 +413,9 @@ If you use Fortran-Torch in your research, please cite:
 ```bibtex
 @software{fortran_torch,
   title = {Fortran-Torch: PyTorch Integration for Fortran},
-  author = {Your Name},
+  author = {Fanghe Zhao},
   year = {2024},
-  url = {https://github.com/yourusername/Fortran-Torch}
+  url = {https://github.com/fzhao70/Fortran-Torch}
 }
 ```
 
@@ -440,7 +440,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - **Documentation**: See `docs/` directory
 - **Issues**: GitHub issue tracker
 - **Discussions**: GitHub discussions
-- **Email**: your.email@example.com
 
 ## Roadmap
 

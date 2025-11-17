@@ -907,8 +907,8 @@ Key advantage: **Operational-ready** ML integration with CCPP framework compatib
 - FV3 Documentation: https://noaa-emc.github.io/FV3_Dycore_ufs-v2.0.0/html/
 - CCPP Documentation: https://ccpp-techdoc.readthedocs.io/
 - UFS Weather Model: https://ufs-weather-model.readthedocs.io/
-- Fortran-Torch: https://github.com/yourusername/Fortran-Torch
+- Fortran-Torch: https://github.com/fzhao70/Fortran-Torch
 
 ---
 
-For operational support, contact NOAA/EMC or see [GitHub Issues](https://github.com/yourusername/Fortran-Torch/issues).
+For operational support, contact NOAA/EMC or see [GitHub Issues](https://github.com/fzhao70/Fortran-Torch/issues).

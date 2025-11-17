@@ -131,7 +131,7 @@ Create `phys/module_cu_ml.F`:
 ! DESCRIPTION:
 !   Machine learning-based cumulus parameterization using Fortran-Torch
 !
-! AUTHOR: Your Name
+! AUTHOR: Fanghe Zhao
 ! DATE: 2024
 !-------------------------------------------------------------------
 
@@ -681,7 +681,7 @@ elapsed = REAL(count_end - count_start) / REAL(count_rate)
 
 - WRF User Guide: https://www2.mmm.ucar.edu/wrf/users/docs/user_guide_v4/
 - WRF Physics: https://www2.mmm.ucar.edu/wrf/users/physics/phys_refs.html
-- Fortran-Torch: https://github.com/yourusername/Fortran-Torch
+- Fortran-Torch: https://github.com/fzhao70/Fortran-Torch
 
 ## Example Workflow Summary
 
@@ -696,4 +696,4 @@ elapsed = REAL(count_end - count_start) / REAL(count_rate)
 
 ---
 
-For questions or issues, see [GitHub Issues](https://github.com/yourusername/Fortran-Torch/issues).
+For questions or issues, see [GitHub Issues](https://github.com/fzhao70/Fortran-Torch/issues).

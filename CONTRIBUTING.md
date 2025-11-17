@@ -405,6 +405,5 @@ Contributors will be:
 
 - Open an issue for questions
 - Join discussions in GitHub Discussions
-- Email: your.email@example.com
 
 Thank you for contributing to Fortran-Torch! 🙏

@@ -142,4 +142,4 @@ When we release version 2.0.0, we will provide:
 
 ---
 
-For detailed commit history, see the [GitHub repository](https://github.com/yourusername/Fortran-Torch/commits/main).
+For detailed commit history, see the [GitHub repository](https://github.com/fzhao70/Fortran-Torch/commits/main).

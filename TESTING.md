@@ -516,4 +516,4 @@ Template:
 For more information, see:
 - [tests/README.md](tests/README.md) - Detailed test documentation
 - [CONTRIBUTING.md](CONTRIBUTING.md) - Contributing guidelines
-- [GitHub Issues](https://github.com/yourusername/Fortran-Torch/issues) - Known issues
+- [GitHub Issues](https://github.com/fzhao70/Fortran-Torch/issues) - Known issues

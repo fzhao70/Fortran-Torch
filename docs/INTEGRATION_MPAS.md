@@ -138,7 +138,7 @@ Create `src/core_atmosphere/physics/mpas_atmphys_ml_convection.F`:
 !   ML-based convection scheme for MPAS using Fortran-Torch
 !   Handles unstructured mesh with variable resolution
 !
-! AUTHOR: Your Name
+! AUTHOR: Fanghe Zhao
 ! DATE: 2024
 !==================================================================
 
@@ -712,8 +712,8 @@ Key advantage: ML models can be **scale-aware**, learning different behavior at 
 
 - MPAS Documentation: https://mpas-dev.github.io/
 - MPAS-A User's Guide: https://www2.mmm.ucar.edu/projects/mpas/mpas_atmosphere_users_guide.html
-- Fortran-Torch: https://github.com/yourusername/Fortran-Torch
+- Fortran-Torch: https://github.com/fzhao70/Fortran-Torch
 
 ---
 
-For questions, see [GitHub Issues](https://github.com/yourusername/Fortran-Torch/issues).
+For questions, see [GitHub Issues](https://github.com/fzhao70/Fortran-Torch/issues).

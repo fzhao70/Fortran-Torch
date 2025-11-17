@@ -606,9 +606,9 @@ If you use Fortran-Torch in your research, please cite:
 ```bibtex
 @software{fortran_torch,
   title = {Fortran-Torch: PyTorch Integration for Fortran-based Models},
-  author = {Your Name},
+  author = {Fanghe Zhao},
   year = {2024},
-  url = {https://github.com/yourusername/Fortran-Torch}
+  url = {https://github.com/fzhao70/Fortran-Torch}
 }
 ```
 
@@ -625,4 +625,4 @@ Future enhancements:
 
 ---
 
-**Questions?** Open an issue on [GitHub](https://github.com/yourusername/Fortran-Torch/issues) or consult the model-specific guides.
+**Questions?** Open an issue on [GitHub](https://github.com/fzhao70/Fortran-Torch/issues) or consult the model-specific guides.

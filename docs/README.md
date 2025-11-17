@@ -268,8 +268,8 @@ Want to add support for other models (CAM, UM, ICON)?
 
 ## Support
 
-- **General Questions**: [GitHub Discussions](https://github.com/yourusername/Fortran-Torch/discussions)
-- **Issues**: [GitHub Issues](https://github.com/yourusername/Fortran-Torch/issues)
+- **General Questions**: [GitHub Discussions](https://github.com/fzhao70/Fortran-Torch/discussions)
+- **Issues**: [GitHub Issues](https://github.com/fzhao70/Fortran-Torch/issues)
 - **Model-Specific**: Consult model community forums
 
 ## Additional Resources
@@ -301,9 +301,9 @@ If you use these integration guides in your research:
 ```bibtex
 @software{fortran_torch_integration,
   title = {Fortran-Torch Weather Model Integration Guides},
-  author = {Your Name},
+  author = {Fanghe Zhao},
   year = {2024},
-  url = {https://github.com/yourusername/Fortran-Torch}
+  url = {https://github.com/fzhao70/Fortran-Torch}
 }
 ```
 

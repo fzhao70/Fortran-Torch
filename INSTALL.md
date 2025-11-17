@@ -107,7 +107,7 @@ wget https://download.pytorch.org/libtorch/cpu/libtorch-shared-with-deps-latest.
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/Fortran-Torch.git
+git clone https://github.com/fzhao70/Fortran-Torch.git
 cd Fortran-Torch
 
 # Create build directory
@@ -177,7 +177,7 @@ pip3 install torch numpy
 # Download and install LibTorch (see above)
 
 # Build Fortran-Torch
-git clone https://github.com/yourusername/Fortran-Torch.git
+git clone https://github.com/fzhao70/Fortran-Torch.git
 cd Fortran-Torch
 mkdir build && cd build
 cmake -DCMAKE_PREFIX_PATH=/path/to/libtorch ..
@@ -221,7 +221,7 @@ wget https://download.pytorch.org/libtorch/cpu/libtorch-macos-latest.zip
 unzip libtorch-macos-latest.zip
 
 # Build Fortran-Torch
-git clone https://github.com/yourusername/Fortran-Torch.git
+git clone https://github.com/fzhao70/Fortran-Torch.git
 cd Fortran-Torch
 mkdir build && cd build
 cmake -DCMAKE_PREFIX_PATH=/path/to/libtorch ..
@@ -247,7 +247,7 @@ pacman -S mingw-w64-x86_64-cmake \
 # Download and extract LibTorch (see above)
 
 # Build
-git clone https://github.com/yourusername/Fortran-Torch.git
+git clone https://github.com/fzhao70/Fortran-Torch.git
 cd Fortran-Torch
 mkdir build && cd build
 cmake -G "MinGW Makefiles" -DCMAKE_PREFIX_PATH=/path/to/libtorch ..
@@ -412,6 +412,5 @@ After successful installation:
 
 ## Getting Help
 
-- Check [GitHub Issues](https://github.com/yourusername/Fortran-Torch/issues)
+- Check [GitHub Issues](https://github.com/fzhao70/Fortran-Torch/issues)
 - Read [Troubleshooting section](README.md#troubleshooting)
-- Contact: your.email@example.com
